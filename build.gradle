@@ -15,11 +15,13 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.21'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'net.mamoe.mirai-console' version '2.0-M2'
     id 'org.jetbrains.kotlin.kapt' version '1.4.0'
 }
 
 def mainClass = 'io.github.starwishsama.comet.Comet'
-def miraiVersion = '2.0-M2-1'
+def miraiVersion = '2.0-M2'
+
 String buildTime
 
 jar {
@@ -61,13 +63,9 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-    compileOnly "net.mamoe:mirai-core:$miraiVersion"
-
     def autoService = '1.0-rc7'
     kapt "com.google.auto.service:auto-service:$autoService"
     compileOnly "com.google.auto.service:auto-service-annotations:$autoService"
-
-    compileOnly "net.mamoe:mirai-console:2.0-M2"
 
     implementation 'cn.hutool:hutool-http:5.4.2'
     implementation 'cn.hutool:hutool-crypto:5.4.2'
@@ -100,9 +98,6 @@ dependencies {
 
     // Selenium WebDriver @ https://www.selenium.dev/
     implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
-
-    //def console = '1.1.0'
-    //compileOnly("net.mamoe:mirai-console:$console")
     
     // Jline a Java library for handling console input @ https://github.com/jline/jline3
     implementation 'org.jline:jline:3.18.0'
