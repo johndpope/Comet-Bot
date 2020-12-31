@@ -22,9 +22,9 @@ jobs:
         run: chmod +x gradlew
       - name: Gradle clean
         run: ./gradlew clean
-      - name: Gradle shadowjar
-        run: ./gradlew shadowjar
+      - name: Build Plugin
+        run: ./gradlew mirai
       - uses: actions/upload-artifact@v1
         with:
-          name: Nameless-Bot.jar
+          name: Comet-Console.jar
           path: build/libs
