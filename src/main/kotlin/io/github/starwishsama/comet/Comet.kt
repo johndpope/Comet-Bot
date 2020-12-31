@@ -161,7 +161,7 @@ object Comet {
     }
 
     @ExperimentalTime
-    fun invokePostTask(bot: Bot) {
+    fun invokePostTask(bot: Bot, logger: MiraiLogger) {
         DataSetup.initPerGroupSetting(bot)
 
         setupRCon()
@@ -252,7 +252,7 @@ object Comet {
             return
         }
 
-        invokePostTask(bot)
+        invokePostTask(bot, logger)
 
         handleConsoleCommand()
 

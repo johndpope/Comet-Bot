@@ -15,6 +15,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.21'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'org.jetbrains.kotlin.kapt' version '1.4.0'
 }
 
 def mainClass = 'io.github.starwishsama.comet.Comet'
@@ -61,6 +62,12 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
     implementation "net.mamoe:mirai-core-all:$miraiVersion"
+
+    def autoService = '1.0-rc7'
+    kapt "com.google.auto.service:auto-service:$autoService"
+    compileOnly "com.google.auto.service:auto-service-annotations:$autoService"
+
+    compileOnly "net.mamoe:mirai-console:2.0-M2"
 
     implementation 'cn.hutool:hutool-http:5.4.2'
     implementation 'cn.hutool:hutool-crypto:5.4.2'
