@@ -31,7 +31,11 @@ fun File.writeClassToJson(context: Any) {
 }
 
 @Synchronized
-fun File.writeString(context: String, autoWrap: Boolean = true, isAppend: Boolean = false) {
+fun File.writeString(context: String, autoWrap: Boolean = true, isAppend: Boolean = false, newIfNotExists: Boolean = true) {
+    if (!exists() && newIfNotExists) {
+        createNewFile()
+    }
+
     if (isAppend) {
         FileWriter.create(this).write(if (autoWrap) context + "\n" else context, isAppend)
     } else {
@@ -118,18 +122,15 @@ object FileUtil {
         daemonLogger.warning("你可以将其反馈到 https://github.com/StarWishsama/Comet-Bot/issues")
     }
 
-    fun initLog(): File? {
+    fun initLog() {
         try {
             val initTime = LocalDateTime.now()
             val parent = getChildFolder("logs")
             BotVariables.log = File(parent, "log-${dateFormatter.format(initTime)}.log")
             BotVariables.log.createNewFile()
-            return BotVariables.log
         } catch (e: IOException) {
             daemonLogger.error("初始化 Log 文件失败")
         }
-
-        return null
     }
 
     @Suppress("SpellCheckingInspection")

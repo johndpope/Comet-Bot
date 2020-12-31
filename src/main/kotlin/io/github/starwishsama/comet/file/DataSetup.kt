@@ -38,7 +38,7 @@ object DataSetup {
     private var brokenConfig = false
 
     fun init() {
-        if (!userCfg.exists() || !cfgFile.exists()) {
+        if (!cfgFile.exists() || !userCfg.exists()) {
             try {
                 cfgFile.writeString(Yaml.default.encodeToString(CometConfig()))
                 userCfg.writeClassToJson(BotVariables.users)
