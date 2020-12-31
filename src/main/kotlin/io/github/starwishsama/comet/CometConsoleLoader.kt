@@ -26,7 +26,7 @@ object CometConsoleLoader : KotlinPlugin(
     @ExperimentalTime
     override fun onEnable() {
 
-        logger.info("Comet 已启动, 正在初始化 ${Bot.instances} 个 Bot...")
+        logger.info("Comet 已启动, 正在初始化 ${Bot.instances.size} 个 Bot...")
 
         if (Bot.instances.isEmpty()) {
             logger.warning("找不到已登录的 Bot, 请登录后重启 Console 重试!")

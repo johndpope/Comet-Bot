@@ -61,7 +61,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-    implementation "net.mamoe:mirai-core-all:$miraiVersion"
+    compileOnly "net.mamoe:mirai-core:$miraiVersion"
 
     def autoService = '1.0-rc7'
     kapt "com.google.auto.service:auto-service:$autoService"
