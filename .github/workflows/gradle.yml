@@ -23,7 +23,7 @@ jobs:
       - name: Gradle clean
         run: ./gradlew clean
       - name: Build Plugin
-        run: ./gradlew mirai
+        run: ./gradlew buildPlugin
       - uses: actions/upload-artifact@v1
         with:
           name: Comet-Console.jar
