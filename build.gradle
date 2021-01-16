@@ -17,6 +17,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
     id("com.github.gmazzo.buildconfig") version("2.0.2")
     id 'org.jetbrains.kotlin.kapt' version '1.4.0'
+    id 'net.mamoe.mirai-console' version '2.0.0'
 }
 
 def mainClass = 'io.github.starwishsama.comet.Comet'
@@ -59,8 +60,6 @@ repositories {
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-
-    implementation("net.mamoe:mirai-core-all:$miraiVersion")
 
     implementation 'cn.hutool:hutool-http:5.5.7'
     implementation 'cn.hutool:hutool-crypto:5.5.7'
