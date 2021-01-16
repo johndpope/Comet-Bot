@@ -21,10 +21,7 @@ import io.github.starwishsama.comet.commands.console.DebugCommand
 import io.github.starwishsama.comet.commands.console.StopCommand
 import io.github.starwishsama.comet.file.BackupHelper
 import io.github.starwishsama.comet.file.DataSetup
-import io.github.starwishsama.comet.listeners.BotGroupStatusListener
-import io.github.starwishsama.comet.listeners.BotStatusListener
-import io.github.starwishsama.comet.listeners.ConvertLightAppListener
-import io.github.starwishsama.comet.listeners.RepeatListener
+import io.github.starwishsama.comet.listeners.*
 import io.github.starwishsama.comet.pushers.*
 import io.github.starwishsama.comet.utils.*
 import io.github.starwishsama.comet.utils.RuntimeUtil.getUsedMemory
@@ -112,14 +109,21 @@ object Comet {
             }
         }
 
-        TaskUtil.runScheduleTaskAsync(25, 25, TimeUnit.MINUTES) { apis.forEach { it.resetTime() } }
+        apis.forEach {
+            TaskUtil.runScheduleTaskAsync(it.duration.toLong(), it.duration.toLong(), TimeUnit.HOURS) {
+                it.resetTime()
+            }
+        }
+
         TaskUtil.runScheduleTaskAsync(5, 60 * 60, TimeUnit.SECONDS, HitokotoUpdater::run)
         TaskUtil.runScheduleTaskAsync(3, 3, TimeUnit.HOURS) {
             val usedMemoryBefore: Long = getUsedMemory()
             System.runFinalization()
             System.gc()
-            daemonLogger.info("GC 清理成功 (${usedMemoryBefore - getUsedMemory()} MB)")
+            daemonLogger.info("定时 GC 清理成功 (-${usedMemoryBefore - getUsedMemory()} MB)")
         }
+
+        TaskUtil.runAsync { BackupHelper.checkOldFiles() }
     }
 
     private fun handleConsoleCommand() {
@@ -191,6 +195,7 @@ object Comet {
                 RSPCommand(),
                 RollCommand(),
                 YoutubeCommand(),
+                MinecraftCommand(),
                 // Console Command
                 StopCommand(),
                 DebugCommand(),
@@ -202,7 +207,7 @@ object Comet {
         logger.info("[命令] 已注册 " + CommandExecutor.countCommands() + " 个命令")
 
         /** 监听器 */
-        val listeners = arrayOf(ConvertLightAppListener, RepeatListener, BotGroupStatusListener, BotStatusListener)
+        val listeners = arrayOf(ConvertLightAppListener, RepeatListener, BotGroupStatusListener, BotStatusListener, AutoReplyListener)
 
         listeners.forEach {
             it.register(bot)
@@ -212,7 +217,7 @@ object Comet {
         startUpTask()
         startAllPusher(bot)
 
-        logger.info("彗星 Bot 启动成功, 版本 ${Versions.version}, 耗时 ${startTime.getLastingTimeAsString()}")
+        logger.info("彗星 Bot 启动成功, 版本 ${BuildConfig.version}, 耗时 ${startTime.getLastingTimeAsString()}")
 
         CommandExecutor.startHandler(bot)
     }

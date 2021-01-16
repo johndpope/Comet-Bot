@@ -3,6 +3,8 @@ package io.github.starwishsama.comet.file
 import cn.hutool.core.io.file.FileReader
 import com.github.salomonbrys.kotson.forEach
 import com.github.salomonbrys.kotson.fromJson
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import io.github.starwishsama.comet.BotVariables
@@ -14,9 +16,9 @@ import io.github.starwishsama.comet.BotVariables.gson
 import io.github.starwishsama.comet.BotVariables.hiddenOperators
 import io.github.starwishsama.comet.objects.BotLocalization
 import io.github.starwishsama.comet.objects.BotUser
-import io.github.starwishsama.comet.objects.CometConfig
+import io.github.starwishsama.comet.objects.config.CometConfig
+import io.github.starwishsama.comet.objects.config.PerGroupConfig
 import io.github.starwishsama.comet.objects.gacha.pool.ArkNightPool
-import io.github.starwishsama.comet.objects.group.PerGroupConfig
 import io.github.starwishsama.comet.utils.*
 import io.github.starwishsama.comet.utils.RuntimeUtil.getOsName
 import io.github.starwishsama.comet.utils.StringUtil.limitStringSize
@@ -40,7 +42,7 @@ object DataSetup {
     fun init() {
         if (!cfgFile.exists() || !userCfg.exists()) {
             try {
-                cfgFile.writeString(Yaml.default.encodeToString(CometConfig()))
+                cfgFile.writeString(Yaml.default.encodeToString(CometConfig()), isAppend = false)
                 userCfg.writeClassToJson(BotVariables.users)
                 shopItemCfg.writeClassToJson(BotVariables.shop)
                 println("[配置] 已自动生成新的配置文件.")
@@ -66,7 +68,7 @@ object DataSetup {
 
     private fun saveCfg() {
         try {
-            cfgFile.writeString(Yaml.default.encodeToString(CometConfig.serializer(), cfg))
+            cfgFile.writeString(Yaml.default.encodeToString(CometConfig.serializer(), cfg), isAppend = true)
             userCfg.writeClassToJson(BotVariables.users)
             shopItemCfg.writeClassToJson(BotVariables.shop)
             savePerGroupSetting()
@@ -93,10 +95,13 @@ object DataSetup {
             daemonLogger.info("未检测到公主连结游戏数据, 抽卡模拟器将无法使用")
         }
 
-        DrawUtil.arkNightDataCheck(arkNightData)
+        try {
+            DrawUtil.arkNightDataCheck(arkNightData)
+        } catch (e: Exception) {
+            daemonLogger.warning("下载明日方舟游戏数据失败, ${e.message}\n注意: 数据来源于 Github, 国内用户无法下载请自行下载替换\n链接: ${DrawUtil.arkNightData}")
+        }
 
         if (arkNightData.exists()) {
-
             @Suppress("UNCHECKED_CAST")
             hiddenOperators = Yaml.default.decodeMapFromString(File(FileUtil.getResourceFolder(), "hidden_operators.yml").getContext())["hiddenOperators"] as MutableList<String>
 
@@ -104,7 +109,7 @@ object DataSetup {
                 arkNight.add(gson.fromJson(e))
             }
 
-            daemonLogger.info("成功载入明日方舟游戏数据, 共 ${arkNight.size} 个")
+            daemonLogger.info("成功载入明日方舟游戏数据, 共 (${arkNight.size - hiddenOperators.size}/${arkNight.size} 个")
             if (cfg.arkDrawUseImage) {
                 if (System.getProperty("java.awt.headless") != "true" && getOsName().toLowerCase().contains("linux")) {
                     daemonLogger.info("检测到类 Unix 系统, 正在启用 Headless 模式")
@@ -165,31 +170,42 @@ object DataSetup {
     }
 
     fun initPerGroupSetting(bot: Bot) {
+        val nonNullGson: Gson = GsonBuilder().setPrettyPrinting().create()
+
         if (!perGroupFolder.exists()) {
             perGroupFolder.mkdirs()
         }
 
         bot.groups.forEach { group ->
             val loc = File(perGroupFolder, "${group.id}.json")
-            if (!loc.exists()) {
-                FileUtil.createBlankFile(loc)
-                BotVariables.perGroup.add(PerGroupConfig(group.id).also { it.init() })
-            } else {
-                val cfg: PerGroupConfig = if (loc.getContext().isEmpty()) {
-                    daemonLogger.warning("检测到 ${group.id} 的群配置异常, 正在重新生成...")
-                    PerGroupConfig(group.id).also {
-                        it.init()
-                        loc.writeClassToJson(it)
-                    }
+            try {
+                if (!loc.exists()) {
+                    FileUtil.createBlankFile(loc)
+                    BotVariables.perGroup.add(PerGroupConfig(group.id).also { it.init() })
                 } else {
-                    loc.parseAsClass(PerGroupConfig::class.java)
-                }
-
-                try {
+                    val cfg: PerGroupConfig = if (loc.getContext().isEmpty()) {
+                        daemonLogger.warning("检测到 ${group.id} 的群配置异常, 正在重新生成...")
+                        PerGroupConfig(group.id).also {
+                            it.init()
+                            loc.writeClassToJson(it)
+                        }
+                    } else {
+                        try {
+                            loc.parseAsClass(PerGroupConfig::class.java, nonNullGson)
+                        } catch (e: Exception) {
+                            daemonLogger.warning("检测到 ${group.id} 的群配置异常, 正在重新生成...")
+                            loc.createBackupFile().also { loc.delete() }
+                            PerGroupConfig(group.id).also {
+                                it.init()
+                                loc.writeClassToJson(it)
+                            }
+                        }
+                    }
                     BotVariables.perGroup.add(cfg)
-                } catch (e: RuntimeException) {
-                    BotVariables.logger.warning("[配置] 在加载 ${group.id} 的分群配置时出现了问题", e)
                 }
+            }
+            catch (e: RuntimeException) {
+                BotVariables.logger.warning("[配置] 在加载 ${group.id} 的分群配置时出现了问题", e)
             }
         }
 

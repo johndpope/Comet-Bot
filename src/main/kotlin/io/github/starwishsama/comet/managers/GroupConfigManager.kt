@@ -2,14 +2,14 @@ package io.github.starwishsama.comet.managers
 
 import io.github.starwishsama.comet.BotVariables.bot
 import io.github.starwishsama.comet.BotVariables.perGroup
-import io.github.starwishsama.comet.objects.group.PerGroupConfig
+import io.github.starwishsama.comet.objects.config.PerGroupConfig
 
 object GroupConfigManager {
     fun getConfig(groupId: Long): PerGroupConfig? {
         if (perGroup.isEmpty()) return null
 
         perGroup.forEach {
-            if (it != null && groupId == it.id) {
+            if (groupId == it.id) {
                 return it
             }
         }
@@ -25,8 +25,8 @@ object GroupConfigManager {
         return cfg ?: createNewConfig(groupId)
     }
 
-    fun createNewConfig(groupId: Long): PerGroupConfig {
-        return PerGroupConfig(groupId).also { it.init() }
+    fun createNewConfig(groupId: Long, instantInit: Boolean = true): PerGroupConfig {
+        return PerGroupConfig(groupId).also { if (instantInit) it.init() }
     }
 
     fun expireConfig(groupId: Long) {

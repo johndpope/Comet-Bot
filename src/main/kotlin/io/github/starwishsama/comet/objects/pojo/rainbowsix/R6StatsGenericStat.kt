@@ -12,7 +12,7 @@ import com.google.gson.annotations.SerializedName
  *
  * @author Nameless
  */
-data class R6TabGenericStat(
+data class R6StatsGenericStat(
     @SerializedName("username")
     val username: String,
     @SerializedName("platform")
@@ -138,5 +138,12 @@ data class R6TabGenericStat(
             @SerializedName("last_updated")
             val lastUpdatedTime: String
         )
+    }
+
+    fun getFancyInfo(): String {
+        return """
+            ♦ $username [${levelInfo.level}]
+            ▶
+        """.trimIndent()
     }
 }

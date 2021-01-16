@@ -35,7 +35,7 @@ object DrawUtil {
     const val pictureCount = 181
 
     private const val arkNightDataApi = "https://api.github.com/repos/Kengxxiao/ArknightsGameData"
-    private const val arkNightData = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json"
+    const val arkNightData = "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/character_table.json"
 
     /**
      * 根据抽卡结果合成图片
@@ -93,8 +93,9 @@ object DrawUtil {
             val lostOps: List<ArkNightOperator>
     )
 
-    fun getStar(rare: Int): String = buildString {
-        for (i in 0 until rare) {
+    fun getStar(rare: Int, isArkNight: Boolean = false): String = buildString {
+        val trueRare = if (isArkNight) rare + 1 else rare
+        for (i in 0 until trueRare) {
             append("★")
         }
     }
@@ -162,7 +163,7 @@ object DrawUtil {
         val isOld: Boolean
 
         daemonLogger.info("明日方舟 > 检查是否为旧版本数据...")
-        if (!JsonParser.parseString(location.getContext()).isJsonObject) {
+        if (!location.exists() || !JsonParser.parseString(location.getContext()).isJsonObject) {
             daemonLogger.info("明日方舟 > 你正在使用旧版本的数据, 正在自动下载新数据")
             isOld = true
         } else {

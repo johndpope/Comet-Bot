@@ -22,7 +22,7 @@ import java.util.stream.Collectors
 class ArkNightPool(override val name: String = "标准寻访" ) : GachaPool() {
     override val tenjouCount: Int = -1
     override val tenjouRare: Int = -1
-    override val poolItems: MutableList<ArkNightOperator> = BotVariables.arkNight.filter { !hiddenOperators.contains(it.obtain ?: return@filter false) }.toMutableList()
+    override val poolItems: MutableList<ArkNightOperator> = BotVariables.arkNight.stream().filter { !hiddenOperators.contains(it.obtain) }.collect(Collectors.toList())
 
     override fun doDraw(time: Int): List<ArkNightOperator> {
         val result = mutableListOf<ArkNightOperator>()
@@ -106,12 +106,12 @@ class ArkNightPool(override val name: String = "标准寻访" ) : GachaPool() {
             when (drawResult.size) {
                 1 -> {
                     val (name, _, rare) = drawResult[0]
-                    return "单次寻访结果\n$name ${DrawUtil.getStar(rare)}"
+                    return "单次寻访结果\n$name ${DrawUtil.getStar(rare, true)}"
                 }
                 10 -> {
                     return StringBuilder("十连寻访结果:\n").apply {
                         for ((name, _, rare) in drawResult) {
-                            append(name).append(" ").append(DrawUtil.getStar(rare)).append(" ")
+                            append(name).append(" ").append(DrawUtil.getStar(rare, true)).append(" ")
                         }
                     }.trim().toString()
                 }

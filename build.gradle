@@ -15,14 +15,12 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.21'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'net.mamoe.mirai-console' version '2.0-M2'
+    id("com.github.gmazzo.buildconfig") version("2.0.2")
     id 'org.jetbrains.kotlin.kapt' version '1.4.0'
 }
 
 def mainClass = 'io.github.starwishsama.comet.Comet'
-def miraiVersion = '2.0-M2'
-
-String buildTime
+def miraiVersion = '2.0.0'
 
 jar {
     manifest {
@@ -31,24 +29,23 @@ jar {
     }
 }
 
-def gitCommitId = 'git rev-parse --short HEAD'
-String versionCode = "0.6-M3-dev-Console-" + gitCommitId.execute().text.trim()
+String versionCode = "0.6.1-dev"
 
 group 'io.github.starwishsama.comet'
 version versionCode
 
-processResources {
-    buildTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))
-    println "Processing version code and other stuffs....."
+tasks {
+    buildConfig {
+        println "Processing version code and other stuffs....."
 
+        String gitCommitId = 'git rev-parse --short HEAD'.execute()
 
-    def versionFile = 'src/main/kotlin/io/github/starwishsama/comet/Versions.kt'
-    ant.replace(file: versionFile, token: '@VERSION@', value: version)
-    ant.replace(file: versionFile, token: '@BUILDTIME@', value: buildTime)
-    ant.replace(file: versionFile, token: '@MIRAI@', value: miraiVersion)
+        packageName("io.github.starwishsama.comet")
+        buildConfigField("String", "version", "\"${versionCode}-${gitCommitId}\"")
+        buildConfigField("String", "buildTime", "\"${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))}\"")
+        buildConfigField("String", "miraiVersion", "\"$miraiVersion\"")
+    }
 }
-
-jar.dependsOn processResources
 
 repositories {
     maven { url 'https://jitpack.io' }
@@ -63,14 +60,12 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-    def autoService = '1.0-rc7'
-    kapt "com.google.auto.service:auto-service:$autoService"
-    compileOnly "com.google.auto.service:auto-service-annotations:$autoService"
+    implementation("net.mamoe:mirai-core-all:$miraiVersion")
 
-    implementation 'cn.hutool:hutool-http:5.4.2'
-    implementation 'cn.hutool:hutool-crypto:5.4.2'
+    implementation 'cn.hutool:hutool-http:5.5.7'
+    implementation 'cn.hutool:hutool-crypto:5.5.7'
 
-    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'org.apache.commons:commons-lang3:3.11'
     implementation 'org.apache.commons:commons-io:1.3.2'
 
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -80,7 +75,7 @@ dependencies {
     implementation 'com.github.salomonbrys.kotson:kotson:2.5.0'
 
     // CUrl
-    implementation 'com.github.rockswang:java-curl:1.2.2.2'
+    implementation 'com.github.rockswang:java-curl:1.2.2.190107'
 
     // BiliBili-Api @ https://github.com/czp3009/bilibili-api
     api 'com.hiczp:bilibili-api:0.1.3'
@@ -98,15 +93,19 @@ dependencies {
 
     // Selenium WebDriver @ https://www.selenium.dev/
     implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
-    
+
     // Jline a Java library for handling console input @ https://github.com/jline/jline3
     implementation 'org.jline:jline:3.18.0'
 
     // Jansi needed by JLine
-    implementation 'org.fusesource.jansi:jansi:1.18'
+    implementation 'org.fusesource.jansi:jansi:2.1.1'
+
+    // DNSJava used to srv lookup
+    implementation 'dnsjava:dnsjava:3.3.1'
 }
 
 shadowJar {
+    dependsOn(generateBuildConfig)
     zip64 true
 }
 

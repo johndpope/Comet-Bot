@@ -40,7 +40,7 @@ object R6TabApi {
                         jsonObject.keySet().iterator().next()
                     ).asJsonObject.get("profile").asJsonObject.get("p_user").asString
                     return gson.fromJson(NetUtil.getPageContent("${apiUrl}player/$uuid?cid=${BotVariables.cfg.r6tabKey}")
-                            ?: return null)
+                        ?: return null)
                 }
             }
         } catch (e: Exception) {
@@ -55,20 +55,20 @@ object R6TabApi {
                 val p: R6StatusPlayer? = searchPlayer(player)
                 if (p != null && p.found) {
                     var response = String.format(
-                            infoText,
-                            p.player?.playerName,
-                            p.stats?.level,
-                            p.ranked?.asRank?.let { R6Rank.getRank(it).rankName },
-                            p.stats?.generalKd,
-                            num.format(
-                                    p.stats?.generalKills?.toDouble()?.let { p.stats?.generalHeadShot?.div(it) }
-                            )
+                        infoText,
+                        p.player?.playerName,
+                        p.stats?.level,
+                        p.ranked?.asRank?.let { R6Rank.getRank(it).rankName },
+                        p.stats?.generalKd,
+                        num.format(
+                            p.stats?.generalKills?.toDouble()?.let { p.stats?.generalHeadShot?.div(it) }
+                        )
                     )
 
                     // 覆写当前段位
                     response = if (p.ranked?.asRank?.let { R6Rank.getRank(it) } != R6Rank.UNRANKED) {
                         response.replace(
-                                "current".toRegex(), p.ranked?.asMMR
+                            "current".toRegex(), p.ranked?.asMMR
                                 .toString() + ""
                         )
                     } else {

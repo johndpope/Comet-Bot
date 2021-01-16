@@ -14,6 +14,7 @@ import io.github.starwishsama.comet.utils.RuntimeUtil.getOsInfo
 import io.github.starwishsama.comet.utils.RuntimeUtil.getUsedMemory
 import io.github.starwishsama.comet.utils.StringUtil.convertToChain
 import io.github.starwishsama.comet.utils.StringUtil.toFriendly
+import io.github.starwishsama.comet.utils.network.NetUtil
 import kotlinx.coroutines.runBlocking
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
@@ -27,6 +28,7 @@ import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.nio.charset.Charset
 import java.time.Duration
 import java.time.LocalDateTime
 import javax.imageio.ImageIO
@@ -236,5 +238,32 @@ object CometUtil {
 
     fun isValidJson(element: JsonElement): Boolean {
         return element.isJsonObject || element.isJsonArray
+    }
+
+    fun getNickNameByQID(qid: Long): String {
+        try {
+            NetUtil.executeHttpRequest("https://r.qzone.qq.com/fcg-bin/cgi_get_portrait.fcg?g_tk=1518561325&uins=$qid").body.use {
+                val response = it?.string()
+
+                if (response != null) {
+                    if (!response.startsWith("portraitCallBack(")) {
+                        return "无"
+                    }
+
+                    val jsonObject =
+                        JsonParser.parseString(response.replace("portraitCallBack(", "").removeSuffix(")"))
+
+                    if (!jsonObject.isJsonObject) {
+                        return "无"
+                    }
+
+                    return String(jsonObject.asJsonObject[qid.toString()].asJsonArray[6].asString.toByteArray(Charset.forName("GB2312")), Charsets.UTF_8)
+                } else {
+                    return "无"
+                }
+            }
+        } catch (e: Exception) {
+            return "无"
+        }
     }
 }

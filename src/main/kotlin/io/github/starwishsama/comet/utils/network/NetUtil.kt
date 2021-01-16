@@ -315,11 +315,9 @@ object NetUtil {
         }
     }
 
-    fun getRedirectedURL(origin: String): String {
-        val request = executeHttpRequest(origin)
-
-        if (request.priorResponse?.isRedirect == false) return origin
-
-        return request.priorResponse?.request?.url.toString()
+    fun getRedirectedURL(origin: String): String? {
+        executeHttpRequest(origin).use { request ->
+            return request.priorResponse?.headers?.get("location")
+        }
     }
 }

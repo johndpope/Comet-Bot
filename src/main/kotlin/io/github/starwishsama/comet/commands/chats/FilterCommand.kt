@@ -6,7 +6,7 @@ import io.github.starwishsama.comet.api.command.interfaces.ChatCommand
 import io.github.starwishsama.comet.enums.UserLevel
 import io.github.starwishsama.comet.managers.GroupConfigManager
 import io.github.starwishsama.comet.objects.BotUser
-import io.github.starwishsama.comet.objects.group.PerGroupConfig
+import io.github.starwishsama.comet.objects.config.PerGroupConfig
 import io.github.starwishsama.comet.utils.CometUtil
 import io.github.starwishsama.comet.utils.CometUtil.sendMessage
 import net.mamoe.mirai.contact.isOperator
@@ -80,7 +80,7 @@ class FilterCommand: ChatCommand {
             }
         } else {
             words.forEach { word ->
-                if (!groupCfg.groupFilterWords.add(word)) {
+                if (groupCfg.groupFilterWords.add(word)) {
                     counter++
                 }
             }
