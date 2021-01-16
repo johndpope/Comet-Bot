@@ -24,7 +24,7 @@ import kotlin.time.ExperimentalTime
 object CometConsoleLoader : KotlinPlugin(
     JvmPluginDescription(
         id = "io.github.starwishsama.comet",
-        version = Versions.version,
+        version = BuildConfig.version,
     ) {
         name("Comet")
     }

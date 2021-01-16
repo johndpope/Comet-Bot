@@ -30,7 +30,7 @@ jar {
     }
 }
 
-String versionCode = "0.6.1-dev"
+String versionCode = "0.6.1-dev-console"
 
 group 'io.github.starwishsama.comet'
 version versionCode
@@ -39,7 +39,7 @@ tasks {
     buildConfig {
         println "Processing version code and other stuffs....."
 
-        String gitCommitId = 'git rev-parse --short HEAD'.execute()
+        String gitCommitId = "git rev-parse --short HEAD".execute().text.trim()
 
         packageName("io.github.starwishsama.comet")
         buildConfigField("String", "version", "\"${versionCode}-${gitCommitId}\"")
@@ -60,6 +60,10 @@ repositories {
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.1'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+
+    def autoService = '1.0-rc7'
+    kapt "com.google.auto.service:auto-service:$autoService"
+    compileOnly "com.google.auto.service:auto-service-annotations:$autoService"
 
     implementation 'cn.hutool:hutool-http:5.5.7'
     implementation 'cn.hutool:hutool-crypto:5.5.7'
